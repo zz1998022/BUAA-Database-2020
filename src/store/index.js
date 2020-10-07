@@ -5,8 +5,20 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    updateId:0,
+    updateName:"",
+    updateLink:"",
   },
   mutations: {
+    updateItemId(state, inputId){
+      state.updateId = inputId
+    },
+    updateItemName(state, inputName){
+      state.updateName = inputName
+    },
+    updateItemLink(state, inputLink){
+      state.updateLink = inputLink
+    }
   },
   actions: {
   },
