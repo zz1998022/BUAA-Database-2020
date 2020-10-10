@@ -2,13 +2,14 @@
   <div>
     <div class="flextitle">
       <div>
-        <a-button type="primary" @click="showModal">添加</a-button>
+        <a-button type="primary" @click="addItem">添加</a-button>
       </div>
       <div>
         <a-input-group Large>
           <a-select default-value="0" style="width: 23%" @change="selectChange">
             <a-select-option value="0"> 名称 </a-select-option>
-            <a-select-option value="1"> 主页 </a-select-option>
+            <a-select-option value="1"> 类型 </a-select-option>
+            <a-select-option value="2"> 价格 </a-select-option>
           </a-select>
           <a-input-search
             style="width: 77%"
@@ -33,20 +34,25 @@
         :columns="columns"
         :data-source="data"
         :loading="loading"
-        rowKey="manuId"
+        rowKey="kitId"
       >
         <template slot="operation" slot-scope="text, record">
           <a-button
             type="link"
             @click="
-              updateModal(record.manuId, record.manuName, record.manuLink)
+              updateModal(
+                record.kitId,
+                record.kitName,
+                record.kitType,
+                record.price
+              )
             "
             >修改</a-button
           >
           <a-popconfirm
             v-if="data.length"
             title="确定要删除吗?"
-            @confirm="() => onDelete(record.manuId)"
+            @confirm="() => onDelete(record.kitId)"
           >
             <a href="javascript:;">删除</a>
           </a-popconfirm>
@@ -63,8 +69,8 @@
 </template>
 
 <script>
-import CollectionCreateForm from "../components/form/createform.vue";
-import UpdateForm from "../components/form/updateform.vue";
+import CollectionCreateForm from "./form/createform.vue";
+import UpdateForm from "./form/updateform.vue";
 import axios from "axios";
 
 export default {
@@ -74,32 +80,36 @@ export default {
   },
   data() {
     return {
-		pagination:{
-			defaultPageSize:7,
-			showTotal:total=>`共${total}条数据`,
-		},
+      pagination: {
+        defaultPageSize: 7,
+        showTotal: (total) => `共${total}条数据`,
+      },
       columns: [
         // {
         //   title: "编号",
-        //   dataIndex: "manuId",
-        //   key: "manuId",
+        //   dataIndex: "kitId",
+        //   key: "kitId",
         //   width: "10%",
         // },
         {
-          title: "厂商名称",
-          dataIndex: "manuName",
-          key: "manuName",
-          width: "20%",
+          title: "名称",
+          dataIndex: "kitName",
+          key: "kitName",
         },
         {
-          title: "厂商主页",
-          dataIndex: "manuLink",
-          key: "manuLink",
-          width: "55%",
+          title: "类型",
+          dataIndex: "kitType",
+          key: "kitType",
+        },
+        {
+          title: "价格",
+          dataIndex: "price",
+          key: "price",
+          // width: "45%",
         },
         {
           title: "操作",
-          width: "15%",
+          width: "20%",
           dataIndex: "operation",
           scopedSlots: {
             customRender: "operation",
@@ -128,12 +138,12 @@ export default {
     },
     onDelete(key) {
       console.log(key);
-      axios.delete("/manufacturer/delete?manuId=" + key).then((res) => {
+      axios.delete("/garagekit/delete?kitId=" + key).then((res) => {
         console.log(res);
         let _this = this;
         _this.loading = true;
         axios
-          .get("/manufacturer/selectAll")
+          .get("/garagekit/selectAll")
           .then(function (response) {
             //将返回的数据存入页面中声明的data中
             _this.data = response.data;
@@ -145,24 +155,22 @@ export default {
           });
       });
     },
-    showModal() {
+    addItem() {
       console.log("show");
       this.visible = true;
     },
     searchModal(value) {
       if (!value || value == "") {
-        console.log("search undefined");
         this.queryTable();
       } else if (this.searchType == 0) {
-        console.log("searchType 0");
         const params = {
-          manuName: value,
+          kitName: value,
         };
         console.log(params);
         let _this = this;
         _this.loading = true;
         axios
-          .get("/manufacturer/selectByName?", {
+          .get("/garagekit/selectByName?", {
             params: params,
           })
           .then(function (response) {
@@ -173,16 +181,32 @@ export default {
           .catch(function (error) {
             alert(error);
           });
-      } else {
-        console.log("searchType 1");
+      } else if (this.searchType == 1){
         const params = {
-          manuLink: value,
+          kitType: value,
         };
-        console.log(params);
         let _this = this;
         _this.loading = true;
         axios
-          .get("/manufacturer/selectByLink?", {
+          .get("/garagekit/selectByType?", {
+            params: params,
+          })
+          .then(function (response) {
+            //将返回的数据存入页面中声明的data中
+            _this.data = response.data;
+            _this.loading = false;
+          })
+          .catch(function (error) {
+            alert(error);
+          });
+      }else{
+        const params = {
+          price: value,
+        };
+        let _this = this;
+        _this.loading = true;
+        axios
+          .get("/garagekit/selectByPrice?", {
             params: params,
           })
           .then(function (response) {
@@ -195,11 +219,11 @@ export default {
           });
       }
     },
-    updateModal(mid, mname, mlink) {
-      console.log("update");
-      this.$store.commit("updateItemId", mid);
-      this.$store.commit("updateItemName", mname);
-      this.$store.commit("updateItemLink", mlink);
+    updateModal(rid, rname, rkitType, rprice) {
+      this.$store.commit("updateGKBy", { inputGK: rid, index: 0 });
+      this.$store.commit("updateGKBy", { inputGK: rname, index: 1 });
+      this.$store.commit("updateGKBy", { inputGK: rkitType, index: 2 });
+      this.$store.commit("updateGKBy", { inputGK: rprice, index: 3 });
       this.updatevisible = true;
     },
     handleCancel() {
@@ -209,38 +233,26 @@ export default {
       this.updatevisible = false;
     },
     updateCreate() {
-      console.log("update up");
       const form = this.$refs.updateForm.form;
       form.validateFields((err, values) => {
         if (err) {
           return;
         }
-
         const params = {
-          manuId: values.manuId,
-          manuName: values.manuName,
-          manuLink: values.manuLink,
+          kitId: values.kitId,
+          kitName: values.kitName,
+          kitType: values.kitType,
+          price: values.price,
         };
-        console.log("Update values of form: ", values);
         axios
-          .put("/manufacturer/update?", null, {
+          .put("/garagekit/update?", null, {
             params: params,
           })
           .then((res) => {
             console.log(res);
             let _this = this;
             _this.loading = true;
-            axios
-              .get("/manufacturer/selectAll")
-              .then(function (response) {
-                //将返回的数据存入页面中声明的data中
-                _this.data = response.data;
-                console.log(_this.data);
-                _this.loading = false;
-              })
-              .catch(function (error) {
-                alert(error);
-              });
+            _this.queryTable();
           });
         form.resetFields();
         this.updatevisible = false;
@@ -254,54 +266,45 @@ export default {
         }
         console.log("Received values of form: ", values);
         const params = {
-          manuName: values.manuName,
-          manuLink: values.manuLink,
+          kitName: values.kitName,
+          kitType: values.kitType,
+          price: values.price,
         };
         axios
-          .post("/manufacturer/insert?", null, {
+          .post("/garagekit/insert?", null, {
             params: params,
           })
           .then((res) => {
-            console.log(res);
             let _this = this;
             _this.loading = true;
-            axios
-              .get("/manufacturer/selectAll")
-              .then(function (response) {
-                //将返回的数据存入页面中声明的data中
-                _this.data = response.data;
-                console.log(_this.data);
-                _this.loading = false;
-              })
-              .catch(function (error) {
-                alert(error);
-              });
+            _this.queryTable();
           });
         form.resetFields();
         this.visible = false;
       });
     },
     queryTable() {
-      console.log("init");
       let _this = this;
       _this.loading = true;
       axios
-        .get("/manufacturer/selectAll")
+        .get("/garagekit/selectAll")
         .then(function (response) {
           //将返回的数据存入页面中声明的data中
           _this.data = response.data;
           _this.loading = false;
         })
         .catch(function (error) {
-          alert(error);
+          console.log("error case!");
+          _this.$notification.open({
+            message: "无法获取GK表格数据",
+            icon: <a-icon type="warning" style="color: #ff1820" />,
+            description:
+              "请检查后端是否正常运行，是否允许跨域；或修改main.js中的axios全局参数，以匹配后端Api",
+            duration: 10,
+          });
         });
     },
   },
-  //   beforeCreate() {
-  //     this.form = this.$form.createForm(this, {
-  //       name: "update_form_in_modal",
-  //     });
-  //   },
   created() {
     this.queryTable();
     console.log(this.data);

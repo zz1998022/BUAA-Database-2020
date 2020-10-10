@@ -1,16 +1,25 @@
 <template>
-  <a-layout-sider width="200" class="a-layout-sider">
+  <a-layout-sider
+    width="200"
+    breakpoint="lg"
+    theme="light"
+    collapsed-width="0"
+    class="a-layout-sider"
+  >
     <a-menu
       mode="inline"
-      :default-selected-keys="['1']"
+      :default-selected-keys="[head_index]"
       :default-open-keys="['sub1']"
       :style="{ height: '100%', borderRight: 0 }"
     >
       <a-sub-menu key="sub1">
-        <span slot="title"><a-icon type="smile" />玩模管理</span>
-        <a-menu-item key="1"> 厂商管理 </a-menu-item>
-        <a-menu-item key="2"> 角色管理 </a-menu-item>
-        <a-menu-item key="3"> GK模型 </a-menu-item>
+        <span slot="title"
+          ><a-icon type="smile" />
+          <router-link to="/manage">玩模管理</router-link>
+        </span>
+        <a-menu-item key="1"><router-link to="/manage">厂商管理</router-link></a-menu-item>
+        <a-menu-item key="2"><router-link to="/manage/role">角色管理</router-link></a-menu-item>
+        <a-menu-item key="3"><router-link to="/manage/garagekit">GK模型</router-link></a-menu-item>
         <!-- <a-menu-item key="4"> 手办表单 </a-menu-item> -->
       </a-sub-menu>
       <a-sub-menu key="sub2">
@@ -25,18 +34,21 @@
         <a-menu-item key="9"> 敬请期待 </a-menu-item>
         <a-menu-item key="10"> 敬请期待 </a-menu-item>
       </a-sub-menu>
-	  <a-sub-menu key="sub4">
-	    <span slot="title"><a-icon type="loading" />正在加载</span>
-	    <a-menu-item key="11"> 敬请期待 </a-menu-item>
-	    <a-menu-item key="12"> 敬请期待 </a-menu-item>
-	  </a-sub-menu>
+      <a-sub-menu key="sub4">
+        <span slot="title"><a-icon type="loading" />正在加载</span>
+        <a-menu-item key="11"> 敬请期待 </a-menu-item>
+        <a-menu-item key="12"> 敬请期待 </a-menu-item>
+      </a-sub-menu>
     </a-menu>
   </a-layout-sider>
 </template>
 
 <script>
 export default {
-  name: "Sidebar"
+  name: "Sidebar",
+  props: {
+    head_index: String,
+  },
 };
 </script>
 

@@ -1,7 +1,6 @@
 import Vue from 'vue/dist/vue.esm.js'
 import App from './App.vue'
 import router from './router'
-import Vuex from 'vuex'
 import store from './store'
 import axios from 'axios'
 import './dependences/antdv.js'

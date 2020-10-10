@@ -1,43 +1,115 @@
 <template>
-  <a-layout id="id_top">
+  <a-layout>
     <MyHeader head_index="1"></MyHeader>
-    <a-layout class="a-layout">
-      <MySidebar />
-      <a-layout id="pbbml" style="padding: 0 24px 24px">
-        <a-breadcrumb style="margin: 16px 0">
-          <a-breadcrumb-item>交易中心</a-breadcrumb-item>
-          <a-breadcrumb-item>手办</a-breadcrumb-item>
-        </a-breadcrumb>
-        <MyCollection></MyCollection>
-      </a-layout>
+    <a-layout class="back">
+      <div class="s-skin-container">
+        <!-- <a-layout id="pbbml" style="padding: 0 24px 24px">
+          <a-breadcrumb style="margin: 16px 0">
+            <a-breadcrumb-item>关于我们</a-breadcrumb-item>
+          </a-breadcrumb>
+        </a-layout> -->
+      </div>
+      <div class="heroContent">
+        <div class="h1">Figure Hub</div>
+        集搜索、销售、二手交易、用户分享于一体的手办交易平台
+      </div>
     </a-layout>
   </a-layout>
 </template>
+
 <script>
 import MyHeader from "./layout/myheader";
-import MySidebar from "./layout/mysidebar";
-import MyCollection from "../components/mycollection.vue";
 
 export default {
   components: {
-    // HelloWorld
     MyHeader,
-    MySidebar,
-    MyCollection,
   },
 };
 </script>
 
-<style>
-.space-class {
-  margin-bottom: 0px;
+<style lang="css" scoped>
+@font-face {
+  font-family: myFont;
+  src: url("../static/fonts/Attractype Reborn.otf") format("opentype");
 }
 
-#id_top {
+.back {
+  background-color: #ffffff;
+}
+
+.s-skin-container {
+  position: fixed;
+  _position: absolute;
+  top: 0;
+  left: 0;
   height: 100%;
+  width: 100%;
+  min-width: 1000px;
+  z-index: -10;
+  background-color: #fb7299;
+  background-image: url("../static/picture/golden-flower.jpg");
+  background-position: center 0;
+  background-repeat: no-repeat;
+  background-size: cover;
+  -webkit-background-size: cover;
+  -o-background-size: cover;
+  zoom: 1;
+  animation: anim 25s linear infinite;
+}
+@keyframes anim {
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
-#pbbml {
-  background-color: #fff;
+.hero {
+  border-radius: 8px;
+  width: 1430px;
+  height: 650px;
+  margin: 17px auto 37px;
+  padding-top: 494px;
+  z-index: 0;
+  color: #fff;
+  position: relative;
+  top: 0;
+  left: 0;
+  background-color: #fb7299;
+  background-image: url("../static/picture/golden-flower.jpg");
+  background-position: center 0;
+  background-repeat: no-repeat;
+  background-size: cover;
+  -webkit-background-size: cover;
+  -o-background-size: cover;
+}
+
+.heroContent {
+  position: absolute;
+  font-size: 18px;
+  text-shadow: 0.1em 0.1em rgba(77, 77, 77, 0.3);
+  top: 50%;
+  left: 50%;
+  padding-top: 0;
+  width: 100%;
+  z-index: 999;
+  color: #fff;
+  -webkit-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.h1 {
+  font-family: myFont;
+  font-size: 120px;
+  position: static;
+  top: auto;
+  left: auto;
+  font-weight: 400;
+  padding-right: 0;
+  padding-left: 0;
+  box-sizing: border-box;
 }
 </style>
