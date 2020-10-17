@@ -3,7 +3,8 @@
     <a-modal
       :visible="visible"
       title="修改项目"
-      okText="Update"
+      okText="修改"
+      cancelText="取消"
       @cancel="
         () => {
           $emit('cancel');
@@ -26,18 +27,18 @@
             ]"
           />
         </a-form-item>
-        <a-form-item label="manuName">
+        <a-form-item label="厂商名称">
           <a-input
             v-decorator="[
               'manuName',
               {
-                rules: [{ required: true, message: 'manuName 不能为空！' }],
+                rules: [{ required: true, message: '厂商名称不能为空！' }],
                 initialValue: this.$store.state.mName,
               },
             ]"
           />
         </a-form-item>
-        <a-form-item label="manuLink">
+        <a-form-item label="厂商主页">
           <a-input
             type="textarea"
             v-decorator="[

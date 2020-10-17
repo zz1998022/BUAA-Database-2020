@@ -2,16 +2,16 @@
   <div>
     <div class="flextitle">
       <div>
-        <a-button type="primary" @click="showModal">添加</a-button>
+        <a-button type="primary" @click="addItem(true)">添加</a-button>
       </div>
       <div>
         <a-input-group style="width: 400px">
-          <a-select default-value="0" style="width: 18%" @change="selectChange">
-            <a-select-option value="0"> 名称 </a-select-option>
-            <a-select-option value="1"> 主页 </a-select-option>
+          <a-select default-value="0" style="width: 25%" @change="selectChange">
+            <a-select-option value="0"> 手办名称 </a-select-option>
+            <a-select-option value="1"> 对应角色 </a-select-option>
           </a-select>
           <a-input-search
-            style="width: 82%"
+            style="width: 75%"
             placeholder="请输入要搜索的关键词"
             allow-clear
             enter-button
@@ -23,6 +23,8 @@
     <collection-create-form
       ref="collectionForm"
       :visible="visible"
+      :roleList="roleList"
+      :figureList="figureList"
       @cancel="handleCancel"
       @create="handleCreate"
     />
@@ -33,22 +35,16 @@
         :columns="columns"
         :data-source="data"
         :loading="loading"
-        rowKey="manuId"
+        rowKey="ftrId"
       >
         <template slot="operation" slot-scope="text, record">
-          <a-button
-            type="link"
-            @click="
-              updateModal(record.manuId, record.manuName, record.manuLink)
-            "
-            >修改</a-button
-          >
+          <a-button type="link" @click="updateModal(record)">修改</a-button>
           <a-popconfirm
             v-if="data.length"
             title="确定要删除吗?"
-            ok-text="确定" 
+            ok-text="确定"
             cancel-text="取消"
-            @confirm="() => onDelete(record.manuId)"
+            @confirm="() => onDelete(record.ftrId)"
           >
             <a href="javascript:;">删除</a>
           </a-popconfirm>
@@ -57,6 +53,9 @@
       <update-form
         ref="updateForm"
         :visible="updatevisible"
+        :roleList="roleList"
+        :figureList="figureList"
+        :recorder="updateRecorder"
         @cancel="updateCancel"
         @create="updateCreate"
       />
@@ -83,25 +82,24 @@ export default {
       columns: [
         // {
         //   title: "编号",
-        //   dataIndex: "manuId",
-        //   key: "manuId",
+        //   dataIndex: "roleId",
+        //   key: "roleId",
         //   width: "10%",
         // },
         {
-          title: "厂商名称",
-          dataIndex: "manuName",
-          key: "manuName",
-          width: "20%",
+          title: "手办名称",
+          dataIndex: "figureName",
+          key: "figureName",
+          width: "40%",
         },
         {
-          title: "厂商主页",
-          dataIndex: "manuLink",
-          key: "manuLink",
-          width: "55%",
+          title: "对应角色",
+          dataIndex: "roleName",
+          key: "roleName",
         },
         {
           title: "操作",
-          width: "15%",
+          width: "10%",
           dataIndex: "operation",
           scopedSlots: {
             customRender: "operation",
@@ -113,6 +111,9 @@ export default {
       updatevisible: false,
       loading: false,
       searchType: 0,
+      updateRecorder: {},
+      roleList: [],
+      figureList: [],
     };
   },
   methods: {
@@ -130,41 +131,51 @@ export default {
     },
     onDelete(key) {
       console.log(key);
-      axios.delete("/manufacturer/delete?manuId=" + key).then((res) => {
+      axios.delete("/figuretorole/delete?ftrId=" + key).then((res) => {
         console.log(res);
         let _this = this;
         _this.loading = true;
-        axios
-          .get("/manufacturer/selectAll")
-          .then(function (response) {
-            //将返回的数据存入页面中声明的data中
-            _this.data = response.data;
-            console.log(_this.data);
-            _this.loading = false;
-          })
-          .catch(function (error) {
-            alert(error);
-          });
+        _this.queryTable();
       });
     },
-    showModal() {
-      console.log("show");
-      this.visible = true;
+    addItem(modelOfUpdate) {
+      let _this = this;
+      axios
+        .get("/figure/selectAll")
+        .then(function (response1) {
+          _this.figureList = response1.data;
+          axios
+            .get("/role/selectAll")
+            .then(function (response2) {
+              //将返回的数据存入页面中声明的data中
+              _this.roleList = response2.data;
+              if (modelOfUpdate) {
+                _this.visible = true;
+              } else {
+                _this.updatevisible = true;
+              }
+            })
+            .catch(function (error) {
+              console.log("role fail");
+            });
+        })
+        .catch(function (error) {
+          console.log("fail");
+        });
     },
     searchModal(value) {
       if (!value || value == "") {
-        console.log("search undefined");
         this.queryTable();
       } else if (this.searchType == 0) {
         console.log("searchType 0");
         const params = {
-          manuName: value,
+          figureName: value,
         };
         console.log(params);
         let _this = this;
         _this.loading = true;
         axios
-          .get("/manufacturer/selectByName?", {
+          .get("/figuretorole/selectByFigureName?", {
             params: params,
           })
           .then(function (response) {
@@ -178,17 +189,18 @@ export default {
       } else {
         console.log("searchType 1");
         const params = {
-          manuLink: value,
+          roleName: value,
         };
         console.log(params);
         let _this = this;
         _this.loading = true;
         axios
-          .get("/manufacturer/selectByLink?", {
+          .get("/figuretorole/selectByRoleName?", {
             params: params,
           })
           .then(function (response) {
             //将返回的数据存入页面中声明的data中
+            console.log("selectByRoleName? ", response.data);
             _this.data = response.data;
             _this.loading = false;
           })
@@ -197,12 +209,10 @@ export default {
           });
       }
     },
-    updateModal(mid, mname, mlink) {
-      console.log("update");
-      this.$store.commit("updateItemId", mid);
-      this.$store.commit("updateItemName", mname);
-      this.$store.commit("updateItemLink", mlink);
-      this.updatevisible = true;
+    updateModal(record) {
+      console.log("record is ", record);
+      this.updateRecorder = record;
+      this.addItem(false);
     },
     handleCancel() {
       this.visible = false;
@@ -211,38 +221,26 @@ export default {
       this.updatevisible = false;
     },
     updateCreate() {
-      console.log("update up");
       const form = this.$refs.updateForm.form;
       form.validateFields((err, values) => {
         if (err) {
           return;
         }
-
+        console.log("upodate ",values);
         const params = {
-          manuId: values.manuId,
-          manuName: values.manuName,
-          manuLink: values.manuLink,
+          ftrId: values.ftrId,
+          figureId: values.fId,
+          roleId: values.rId,
         };
-        console.log("Update values of form: ", values);
         axios
-          .put("/manufacturer/update?", null, {
+          .put("/figuretorole/update?", null, {
             params: params,
           })
           .then((res) => {
             console.log(res);
             let _this = this;
             _this.loading = true;
-            axios
-              .get("/manufacturer/selectAll")
-              .then(function (response) {
-                //将返回的数据存入页面中声明的data中
-                _this.data = response.data;
-                console.log(_this.data);
-                _this.loading = false;
-              })
-              .catch(function (error) {
-                alert(error);
-              });
+            _this.queryTable();
           });
         form.resetFields();
         this.updatevisible = false;
@@ -256,39 +254,28 @@ export default {
         }
         console.log("Received values of form: ", values);
         const params = {
-          manuName: values.manuName,
-          manuLink: values.manuLink,
+          figureId: values.fId,
+          roleId: values.rId,
         };
+        let _this = this;
         axios
-          .post("/manufacturer/insert?", null, {
+          .post("/figuretorole/insert?", null, {
             params: params,
           })
           .then((res) => {
             console.log(res);
-            let _this = this;
             _this.loading = true;
-            axios
-              .get("/manufacturer/selectAll")
-              .then(function (response) {
-                //将返回的数据存入页面中声明的data中
-                _this.data = response.data;
-                console.log(_this.data);
-                _this.loading = false;
-              })
-              .catch(function (error) {
-                alert(error);
-              });
+            _this.queryTable();
           });
         form.resetFields();
-        this.visible = false;
+        _this.visible = false;
       });
     },
     queryTable() {
-      console.log("init");
       let _this = this;
       _this.loading = true;
       axios
-        .get("/manufacturer/selectAll")
+        .get("/figuretorole/selectAll")
         .then(function (response) {
           //将返回的数据存入页面中声明的data中
           _this.data = response.data;
@@ -297,11 +284,11 @@ export default {
         .catch(function (error) {
           console.log("error case!");
           _this.$notification.open({
-            message: "无法获取表格数据",
-            icon: <a-icon type="warning"  style="color: #ff1820" />,
+            message: "无法获取关系表格数据",
+            icon: <a-icon type="warning" style="color: #ff1820" />,
             description:
               "请检查后端是否正常运行，是否允许跨域；或修改main.js中的axios全局参数，以匹配后端Api",
-              duration: 10,
+            duration: 10,
           });
         });
     },

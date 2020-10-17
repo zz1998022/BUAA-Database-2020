@@ -31,10 +31,16 @@ const routes = [
         meta: { title: 'Role'}
       },
       {
-        path: 'garagekit',
-        name: 'Garagekit',
-        component: () => import('../views/manage/Garagekit.vue'),
-        meta: { title: 'Garagekit'}
+        path: 'figure',
+        name: 'Figure',
+        component: () => import('../views/manage/Figure.vue'),
+        meta: { title: 'Figure'}
+      },
+      {
+        path: 'figure2role',
+        name: 'Figure2Role',
+        component: () => import('../views/manage/Figure2Role.vue'),
+        meta: { title: 'Figure2Role'}
       },
     ]
   },

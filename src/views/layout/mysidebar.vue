@@ -15,11 +15,12 @@
       <a-sub-menu key="sub1">
         <span slot="title"
           ><a-icon type="smile" />
-          <router-link to="/manage">玩模管理</router-link>
+          <router-link to="/manage">百科管理</router-link>
         </span>
-        <a-menu-item key="1"><router-link to="/manage">厂商管理</router-link></a-menu-item>
-        <a-menu-item key="2"><router-link to="/manage/role">角色管理</router-link></a-menu-item>
-        <a-menu-item key="3"><router-link to="/manage/garagekit">GK模型</router-link></a-menu-item>
+        <a-menu-item key="1"><router-link to="/manage">厂商信息</router-link></a-menu-item>
+        <a-menu-item key="2"><router-link to="/manage/role">角色信息</router-link></a-menu-item>
+        <a-menu-item key="3"><router-link to="/manage/figure">手办模型</router-link></a-menu-item>
+        <a-menu-item key="4"><router-link to="/manage/figure2role">对应关系</router-link></a-menu-item>
         <!-- <a-menu-item key="4"> 手办表单 </a-menu-item> -->
       </a-sub-menu>
       <a-sub-menu key="sub2">
@@ -54,6 +55,6 @@ export default {
 
 <style>
 .a-layout-sider {
-  background: #000;
+  background: #fff;
 }
 </style>

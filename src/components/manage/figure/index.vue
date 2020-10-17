@@ -5,15 +5,15 @@
         <a-button type="primary" @click="addItem">添加</a-button>
       </div>
       <div>
-        <a-input-group Large>
-          <a-select default-value="0" style="width: 23%" @change="selectChange">
+        <a-input-group style="width: 400px">
+          <a-select default-value="0" style="width: 18%" @change="selectChange">
             <a-select-option value="0"> 名称 </a-select-option>
             <a-select-option value="1"> 类型 </a-select-option>
             <a-select-option value="2"> 价格 </a-select-option>
           </a-select>
           <a-input-search
-            style="width: 77%"
-            placeholder="input search text"
+            style="width: 82%"
+            placeholder="请输入要搜索的关键词"
             allow-clear
             enter-button
             @search="searchModal"
@@ -34,25 +34,16 @@
         :columns="columns"
         :data-source="data"
         :loading="loading"
-        rowKey="kitId"
+        rowKey="figureId"
       >
         <template slot="operation" slot-scope="text, record">
-          <a-button
-            type="link"
-            @click="
-              updateModal(
-                record.kitId,
-                record.kitName,
-                record.kitType,
-                record.price
-              )
-            "
-            >修改</a-button
-          >
+          <a-button type="link" @click="updateModal(record)">修改</a-button>
           <a-popconfirm
             v-if="data.length"
             title="确定要删除吗?"
-            @confirm="() => onDelete(record.kitId)"
+            ok-text="确定"
+            cancel-text="取消"
+            @confirm="() => onDelete(record.figureId)"
           >
             <a href="javascript:;">删除</a>
           </a-popconfirm>
@@ -61,6 +52,7 @@
       <update-form
         ref="updateForm"
         :visible="updatevisible"
+        :recorder="updateRecorder"
         @cancel="updateCancel"
         @create="updateCreate"
       />
@@ -87,29 +79,36 @@ export default {
       columns: [
         // {
         //   title: "编号",
-        //   dataIndex: "kitId",
-        //   key: "kitId",
+        //   dataIndex: "figureId",
+        //   key: "figureId",
         //   width: "10%",
         // },
         {
           title: "名称",
-          dataIndex: "kitName",
-          key: "kitName",
+          dataIndex: "figureName",
+          key: "figureName",
         },
         {
           title: "类型",
-          dataIndex: "kitType",
-          key: "kitType",
+          dataIndex: "figureTypeStr",
+          key: "figureTypeStr",
+          width: "10%",
         },
         {
           title: "价格",
           dataIndex: "price",
           key: "price",
-          // width: "45%",
+          width: "10%",
+        },
+        {
+          title: "比例",
+          dataIndex: "prop",
+          key: "prop",
+          width: "10%",
         },
         {
           title: "操作",
-          width: "20%",
+          width: "15%",
           dataIndex: "operation",
           scopedSlots: {
             customRender: "operation",
@@ -117,10 +116,12 @@ export default {
         },
       ],
       data: [],
+      roleData: [],
       visible: false,
       updatevisible: false,
       loading: false,
       searchType: 0,
+      updateRecorder: {},
     };
   },
   methods: {
@@ -138,21 +139,11 @@ export default {
     },
     onDelete(key) {
       console.log(key);
-      axios.delete("/garagekit/delete?kitId=" + key).then((res) => {
+      axios.delete("/figure/delete?figureId=" + key).then((res) => {
         console.log(res);
         let _this = this;
         _this.loading = true;
-        axios
-          .get("/garagekit/selectAll")
-          .then(function (response) {
-            //将返回的数据存入页面中声明的data中
-            _this.data = response.data;
-            console.log(_this.data);
-            _this.loading = false;
-          })
-          .catch(function (error) {
-            alert(error);
-          });
+        _this.queryTable();
       });
     },
     addItem() {
@@ -164,13 +155,13 @@ export default {
         this.queryTable();
       } else if (this.searchType == 0) {
         const params = {
-          kitName: value,
+          figureName: value,
         };
         console.log(params);
         let _this = this;
         _this.loading = true;
         axios
-          .get("/garagekit/selectByName?", {
+          .get("/figure/selectByName?", {
             params: params,
           })
           .then(function (response) {
@@ -181,14 +172,14 @@ export default {
           .catch(function (error) {
             alert(error);
           });
-      } else if (this.searchType == 1){
+      } else if (this.searchType == 1) {
         const params = {
-          kitType: value,
+          figureType: value,
         };
         let _this = this;
         _this.loading = true;
         axios
-          .get("/garagekit/selectByType?", {
+          .get("/figure/selectByType?", {
             params: params,
           })
           .then(function (response) {
@@ -199,14 +190,14 @@ export default {
           .catch(function (error) {
             alert(error);
           });
-      }else{
+      } else {
         const params = {
           price: value,
         };
         let _this = this;
         _this.loading = true;
         axios
-          .get("/garagekit/selectByPrice?", {
+          .get("/figure/selectByPrice?", {
             params: params,
           })
           .then(function (response) {
@@ -219,11 +210,8 @@ export default {
           });
       }
     },
-    updateModal(rid, rname, rkitType, rprice) {
-      this.$store.commit("updateGKBy", { inputGK: rid, index: 0 });
-      this.$store.commit("updateGKBy", { inputGK: rname, index: 1 });
-      this.$store.commit("updateGKBy", { inputGK: rkitType, index: 2 });
-      this.$store.commit("updateGKBy", { inputGK: rprice, index: 3 });
+    updateModal(record) {
+      this.updateRecorder = record;
       this.updatevisible = true;
     },
     handleCancel() {
@@ -239,13 +227,15 @@ export default {
           return;
         }
         const params = {
-          kitId: values.kitId,
-          kitName: values.kitName,
-          kitType: values.kitType,
+          figureId: values.figureId,
+          figureName: values.figureName,
+          figureType: values.figureType,
           price: values.price,
+          prop: values.prop,
         };
+        console.log("update test ", values);
         axios
-          .put("/garagekit/update?", null, {
+          .put("/figure/update?", null, {
             params: params,
           })
           .then((res) => {
@@ -266,12 +256,13 @@ export default {
         }
         console.log("Received values of form: ", values);
         const params = {
-          kitName: values.kitName,
-          kitType: values.kitType,
+          figureName: values.figureName,
+          figureType: values.figureType,
           price: values.price,
+          prop: values.prop,
         };
         axios
-          .post("/garagekit/insert?", null, {
+          .post("/figure/insert?", null, {
             params: params,
           })
           .then((res) => {
@@ -287,10 +278,27 @@ export default {
       let _this = this;
       _this.loading = true;
       axios
-        .get("/garagekit/selectAll")
+        .get("/figure/selectAll")
         .then(function (response) {
           //将返回的数据存入页面中声明的data中
           _this.data = response.data;
+          for (let i = 0; i < _this.data.length; i++) {
+            let tmp_gender = _this.data[i].figureType;
+            let tmp_role = _this.data[i].figureId;
+            if (tmp_gender == 1) {
+              _this.data[i].figureTypeStr = "GK手办";
+            } else if (tmp_gender == 2) {
+              _this.data[i].figureTypeStr = "PVC手办";
+            } else if (tmp_gender == 3) {
+              _this.data[i].figureTypeStr = "可动手办";
+            } else if (tmp_gender == 4) {
+              _this.data[i].figureTypeStr = "景品手办";
+            } else if (tmp_gender == 5) {
+              _this.data[i].figureTypeStr = "粘土人";
+            } else {
+              _this.data[i].figureTypeStr = "未知";
+            }
+          }
           _this.loading = false;
         })
         .catch(function (error) {

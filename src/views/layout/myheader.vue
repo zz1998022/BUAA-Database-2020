@@ -4,7 +4,7 @@
     <a-col :span="2">
       <router-link to="/"><div class="logo">Figure Hub</div></router-link>
     </a-col>
-    <a-col :span="19">
+    <a-col :span="20">
       <a-layout-header style="padding: 0; background: #fff">
         <a-menu
           id="gtcbml"
@@ -25,6 +25,7 @@
         </a-menu>
       </a-layout-header>
     </a-col>
+    <a-col :span="1"><a-avatar style="backgroundColor:#fb7299" icon="user" /></a-col>
   </a-row>
 </template>
 

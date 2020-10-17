@@ -1,24 +1,24 @@
 <template>
   <a-layout>
-      <MySidebar head_index="2"/>
+      <MySidebar head_index="3"/>
       <a-layout class="pbbml">
-        <MyBread first="百科管理" second="角色信息"/>
-        <RoleCollection/>
+        <MyBread first="百科管理" second="手办模型"/>
+        <GCollection/>
       </a-layout>
   </a-layout>
 </template>
 <script>
 import MyHeader from "../layout/myheader";
 import MySidebar from "../layout/mysidebar";
-import MyBread from "../layout/mybreadcrumb"
-import RoleCollection from "@/components/manage/role"
+import MyBread from "../layout/mybreadcrumb";
+import GCollection from "@/components/manage/figure"
 
 export default {
   components: {
     MyHeader,
     MySidebar,
     MyBread,
-    RoleCollection
+    GCollection
   },
 };
 </script>

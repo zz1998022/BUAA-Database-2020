@@ -1,8 +1,8 @@
 <template>
   <a-layout>
-      <MySidebar head_index="3"/>
+      <MySidebar head_index="4"/>
       <a-layout class="pbbml">
-        <MyBread first="玩模管理" second="GK模型"/>
+        <MyBread first="百科管理" second="对应关系"/>
         <GCollection/>
       </a-layout>
   </a-layout>
@@ -11,7 +11,7 @@
 import MyHeader from "../layout/myheader";
 import MySidebar from "../layout/mysidebar";
 import MyBread from "../layout/mybreadcrumb";
-import GCollection from "@/components/manage/garagekit"
+import GCollection from "@/components/manage/figure2role"
 
 export default {
   components: {

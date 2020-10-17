@@ -5,14 +5,14 @@
         <a-button type="primary" @click="addItem">添加</a-button>
       </div>
       <div>
-        <a-input-group Large>
-          <a-select default-value="0" style="width: 23%" @change="selectChange">
+        <a-input-group style="width: 400px">
+          <a-select default-value="0" style="width: 18%" @change="selectChange">
             <a-select-option value="0"> 名称 </a-select-option>
             <a-select-option value="1"> 性别 </a-select-option>
           </a-select>
           <a-input-search
-            style="width: 77%"
-            placeholder="input search text"
+            style="width: 82%"
+            placeholder="请输入要搜索的关键词"
             allow-clear
             enter-button
             @search="searchModal"
@@ -36,14 +36,12 @@
         rowKey="roleId"
       >
         <template slot="operation" slot-scope="text, record">
-          <a-button
-            type="link"
-            @click="updateModal(record.roleId, record.roleName, record.gender, record.intro)"
-            >修改</a-button
-          >
+          <a-button type="link" @click="updateModal(record)">修改</a-button>
           <a-popconfirm
             v-if="data.length"
             title="确定要删除吗?"
+            ok-text="确定"
+            cancel-text="取消"
             @confirm="() => onDelete(record.roleId)"
           >
             <a href="javascript:;">删除</a>
@@ -53,6 +51,7 @@
       <update-form
         ref="updateForm"
         :visible="updatevisible"
+        :recorder="updateRecorder"
         @cancel="updateCancel"
         @create="updateCreate"
       />
@@ -87,12 +86,12 @@ export default {
           title: "名称",
           dataIndex: "roleName",
           key: "roleName",
-          width: "10%",
+          width: "15%",
         },
         {
           title: "性别",
-          dataIndex: "gender",
-          key: "gender",
+          dataIndex: "genderStr",
+          key: "genderStr",
           width: "5%",
         },
         {
@@ -115,6 +114,7 @@ export default {
       updatevisible: false,
       loading: false,
       searchType: 0,
+      updateRecorder: {},
     };
   },
   methods: {
@@ -136,17 +136,7 @@ export default {
         console.log(res);
         let _this = this;
         _this.loading = true;
-        axios
-          .get("/role/selectAll")
-          .then(function (response) {
-            //将返回的数据存入页面中声明的data中
-            _this.data = response.data;
-            console.log(_this.data);
-            _this.loading = false;
-          })
-          .catch(function (error) {
-            alert(error);
-          });
+        _this.queryTable();
       });
     },
     addItem() {
@@ -171,6 +161,17 @@ export default {
           .then(function (response) {
             //将返回的数据存入页面中声明的data中
             _this.data = response.data;
+            for (let i = 0; i < _this.data.length; i++) {
+              console.log(_this.data[i].gender);
+              let tmp_gender = _this.data[i].gender;
+              if (tmp_gender == 2) {
+                _this.data[i].genderStr = "女";
+              } else if (tmp_gender == 1) {
+                _this.data[i].genderStr = "男";
+              } else {
+                _this.data[i].genderStr = "未知";
+              }
+            }
             _this.loading = false;
           })
           .catch(function (error) {
@@ -178,8 +179,16 @@ export default {
           });
       } else {
         console.log("searchType 1");
+        let tmp_gender = "0";
+        if (value == "女") {
+          tmp_gender = "2";
+        } else if ((tmp_gender = "1")) {
+          tmp_gender = "1";
+        } else {
+          tmp_gender = "0";
+        }
         const params = {
-          gender: value,
+          gender: tmp_gender,
         };
         console.log(params);
         let _this = this;
@@ -191,6 +200,17 @@ export default {
           .then(function (response) {
             //将返回的数据存入页面中声明的data中
             _this.data = response.data;
+            for (let i = 0; i < _this.data.length; i++) {
+              console.log(_this.data[i].gender);
+              let tmp_gender = _this.data[i].gender;
+              if (tmp_gender == 2) {
+                _this.data[i].genderStr = "女";
+              } else if (tmp_gender == 1) {
+                _this.data[i].genderStr = "男";
+              } else {
+                _this.data[i].genderStr = "未知";
+              }
+            }
             _this.loading = false;
           })
           .catch(function (error) {
@@ -198,11 +218,9 @@ export default {
           });
       }
     },
-    updateModal(rid, rname, rgender, rintro) {
-      this.$store.commit("updateRoleId", rid);
-      this.$store.commit("updateRoleName", rname);
-      this.$store.commit("updateRoleGender", rgender);
-      this.$store.commit("updateRoleIntro", rintro);
+    updateModal(record) {
+      console.log("record is ", record);
+      this.updateRecorder = record;
       this.updatevisible = true;
     },
     handleCancel() {
@@ -221,7 +239,7 @@ export default {
           roleId: values.roleId,
           roleName: values.roleName,
           gender: values.gender,
-          intro:values.intro,
+          intro: values.intro,
         };
         axios
           .put("/role/update?", null, {
@@ -231,17 +249,7 @@ export default {
             console.log(res);
             let _this = this;
             _this.loading = true;
-            axios
-              .get("/role/selectAll")
-              .then(function (response) {
-                //将返回的数据存入页面中声明的data中
-                _this.data = response.data;
-                console.log(_this.data);
-                _this.loading = false;
-              })
-              .catch(function (error) {
-                alert(error);
-              });
+            _this.queryTable();
           });
         form.resetFields();
         this.updatevisible = false;
@@ -267,24 +275,13 @@ export default {
             console.log(res);
             let _this = this;
             _this.loading = true;
-            axios
-              .get("/role/selectAll")
-              .then(function (response) {
-                //将返回的数据存入页面中声明的data中
-                _this.data = response.data;
-                console.log(_this.data);
-                _this.loading = false;
-              })
-              .catch(function (error) {
-                alert(error);
-              });
+            _this.queryTable();
           });
         form.resetFields();
         this.visible = false;
       });
     },
     queryTable() {
-      console.log("init");
       let _this = this;
       _this.loading = true;
       axios
@@ -292,6 +289,17 @@ export default {
         .then(function (response) {
           //将返回的数据存入页面中声明的data中
           _this.data = response.data;
+          for (let i = 0; i < _this.data.length; i++) {
+            console.log(_this.data[i].gender);
+            let tmp_gender = _this.data[i].gender;
+            if (tmp_gender == 2) {
+              _this.data[i].genderStr = "女";
+            } else if (tmp_gender == 1) {
+              _this.data[i].genderStr = "男";
+            } else {
+              _this.data[i].genderStr = "未知";
+            }
+          }
           _this.loading = false;
         })
         .catch(function (error) {

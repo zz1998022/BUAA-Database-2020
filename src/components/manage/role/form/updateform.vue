@@ -21,35 +21,38 @@
         <a-form-item v-show="false" label="roleId">
           <a-input
             type="textarea"
-            v-decorator="['roleId', { initialValue: this.$store.state.rId }]"
+            v-decorator="['roleId', { initialValue: recorder.roleId }]"
           />
         </a-form-item>
-        <a-form-item label="roleName">
+        <a-form-item label="角色名称">
           <a-input
             v-decorator="[
               'roleName',
               {
-                rules: [{ required: true, message: 'roleName 不能为空！' }],
-                initialValue: this.$store.state.rName,
+                rules: [{ required: true, message: '角色名称不能为空！' }],
+                initialValue: recorder.roleName,
               },
             ]"
           />
         </a-form-item>
-        <a-form-item label="gender">
-          <a-input
+        <a-form-item label="角色性别">
+          <a-radio-group
             v-decorator="[
               'gender',
-              { initialValue: this.$store.state.rGender },
+              {
+                initialValue: ''+ recorder.gender,
+              },
             ]"
-          />
+          >
+            <a-radio value="2">女</a-radio>
+            <a-radio value="1">男</a-radio>
+            <a-radio value="0">未知</a-radio>
+          </a-radio-group>
         </a-form-item>
-        <a-form-item label="intro">
+        <a-form-item label="角色介绍">
           <a-input
             type="textarea"
-            v-decorator="[
-              'intro',
-              { initialValue: this.$store.state.rIntro },
-            ]"
+            v-decorator="['intro', { initialValue: recorder.intro }]"
           />
         </a-form-item>
       </a-form>
@@ -59,7 +62,7 @@
 
 <script>
 export default {
-  props: ["visible"],
+  props: ["visible","recorder"],
   beforeCreate() {
     this.form = this.$form.createForm(this, {
       name: "update_form_in_modal2",

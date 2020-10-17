@@ -2,7 +2,7 @@
   <a-layout>
       <MySidebar head_index="1" />
       <a-layout id="pbbml" style="padding: 0 24px 24px">
-        <MyBread first="玩模管理" second="厂商管理" />
+        <MyBread first="百科管理" second="厂商信息" />
         <MyCollection></MyCollection>
     </a-layout>
   </a-layout>
